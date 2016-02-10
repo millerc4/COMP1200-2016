@@ -1,0 +1,874 @@
+= Lectures
+
+== January 6
+
+=== Introduce yourself
+Welcome! Let's get to know each other with an icebreaker. Answer these questions:
+
+* What is your name?
+* Why did you pick your major?
+* Tell us something nobody else in the room knows about you.
+
+=== About this course
+
+This course introduces digital logic, combinational and sequential circuit design,
+and computer organization (hence the name).
+
+We'll have a midterm, labs and assignments, and small group project involving
+designing, implementing and testing a CPU in a simulator.
+
+The textbook is recommended, but not required. Let's use free books, instead:
+
+* http://www.cburch.com/socs/written/text/v1.pdf[Science of Computing]
+* http://www.allaboutcircuits.com/vol_4/[Lessons in Electric Circuits]
+* http://www.kolls.net/cml/cml-sep1.pdf[Computer Mathematics and Logic]
+* https://github.com/vhf/free-programming-books/blob/master/free-programming-books.md[Free programming books]
+
+== January 7
+
+=== Number bases
+
+image:http://lawrancej.github.io/COMP278-2014/images/bases.svg[Number conversion overview]
+
+The base or *radix* is the number of digits used to represent a number.
+
+[format="csv", options="header"]
+|===
+Base , Name                 ,Base label, Digits  , Example
+2    , **Bi**nary           ,0b,         0-1     , 0b1010
+8    , **Oct**al            ,0o,         0-7     , 0o12
+10   , **Deci**mal          ,None,       0-9     , 10
+16   , **Hex**adecimal      ,0x,         "0-9,A-F" , 0xA
+|===
+
+Each number base has a Latin root shared with other words.
+*Bi* means two, as in binary, bicycle, bisexual.
+*Oct* means eight, as in octal, octagon (stop sign) and October.
+*Deci* means ten, as in decimal, December and decimate.
+*Hex* means six, as in hexadecimal (think 6 + 10) and hexagon.
+Fun fact: October and December were the eighth and tenth month before Julius and Augustus Caesar named months after themselves.
+Fun fact: decimate meant killing every tenth soldier for group punishment (those Romans!).
+
+Assume numbers without a prefix are in decimal, unless prefixed with a *base label*.
+A base label identifies the number base (e.g., 0b, 0o, 0x).
+Thus, 1011.1 means one thousand eleven and one tenth, but 0b1011.1 means 11.5 in decimal.
+
+=== Number base uses
+
+Binary works reliably everywhere.
+
+[format="csv", options="header"]
+|===
+Binary, Number,0,1
+Boolean,Value             , False          , True
+English,Word              , No             , Yes
+Switch, Position          , Off            , On
+CPU,    Voltage           , Low            , High
+HD,     Magnetic Polarity , South          , North
+CD-ROM, Pit/land edge     , Non-edge       , Edge
+RAM,    Electric charge   , Negative       , Positive
+Finger, Position          , Closed         , Extended
+|===
+
+Octal is used in Linux/Unix to represent read/write/execute permissions for users, groups, and others.
+
+Hexadecimal is a compact number representation that is found in IPv6 addresses, SHA hashes, and so forth.
+
+=== Digits and place values
+
+Each digit in a number has a place value.
+The place values in any number base are powers of the base.
+
+*Example*: Decimal number 278.1 has four digits and *place values* (and a decimal point).
+We read this number as two *hundred* seven *ty* eight and one *tenth*.
+That is, 278.1 is 2 * 100 + 7 * 10 + 8 * 1 + 1 * 0.1.
+
+[format="csv", options="header"]
+|===
+Place value , hundreds (10^2)  , tens (10^1)    , ones (10^0)   , decimal point , tenths (10^-1)
+Digit       , 2         , 7       , 8      , .           , 1
+|===
+
+*Example*: Binary number 0b1011.1 has five bits (binary digits) and place values.
+Read this as "binary number one zero one one point one".
+That is, 0b1011.1 is 8 * 1 + 4 * 0 + 1 * 2 + 1 * 1 + 1 * 0.5,
+or more simply 8 + 2 + 1 + 0.5 = 11.5 in decimal.
+
+[format="csv", options="header"]
+|===
+Place value  , 8 (2^3)  , 4 (2^2)  , 2 (2^1)  , 1 (2^0)  , radix point , 0.5 (2^-1)
+Bit          , 1   , 0   , 1   , 1   , .           , 1
+|===
+
+NOTE: DO NOT read decimal place values for other number bases.
+For example, do not read 0b1011.1 as "one thousand eleven and one tenth",
+because that implies a decimal number.
+
+=== Counting
+
+NOTE: The first digit in a number (on the left) is the **most significant**;
+the last digit (on the right) **least significant**.
+Zeroes on the left don't affect the number.
+
+To count in any number base, picture an odometer:
+the least significant digit cycles faster than the most significant digit while counting.
+
+. Write out all desired place values
+. Writing from top to bottom, not left to right, cycle through all digits,
+repeating each digit as many times as indicated by the corresponding place value above.
+
+*Example*: Counting nibbles, single hex digits, two-digit octal and two-digit decimal.
+
+[format="csv", options="header"]
+|===
+Binary , Hexadecimal , Octal , Decimal
+0000   ,   0         ,  00   ,   00
+0001   ,   1         ,  01   ,   01
+0010   ,   2         ,  02   ,   02
+0011   ,   3         ,  03   ,   03
+0100   ,   4         ,  04   ,   04
+0101   ,   5         ,  05   ,   05
+0110   ,   6         ,  06   ,   06
+0111   ,   7         ,  07   ,   07
+1000   ,   8         ,  10   ,   08
+1001   ,   9         ,  11   ,   09
+1010   ,   A         ,  12   ,   10
+1011   ,   B         ,  13   ,   11
+1100   ,   C         ,  14   ,   12
+1101   ,   D         ,  15   ,   13
+1110   ,   E         ,  16   ,   14
+1111   ,   F         ,  17   ,   15
+|===
+
+Notice the pattern of cycling (and repetition) through digits in each number base?
+Binary cycles between 0 and 1 under the least significant place value,
+and in the 2's place, it cycles between 00 and 11, and so forth.
+
+*Challenge*: What will the next row in the table above look like?
+
+NOTE: 10 in any base means the base itself.
+Think about why. What's 0b10 in decimal? How'd you know that?
+
+=== Binary -> decimal
+
+To convert from binary to decimal,
+
+. Write out place values (powers of two) above each binary digit (bit)
+. Add up place values when the corresponding bit is 1
+
+*Example*: What is 0b111100 in decimal?
+
+[format="csv", options="header"]
+|===
+Place value  , 32 (2^5)  , 16 (2^4)  , 8 (2^3)  , 4 (2^2)  , 2 (2^1) , 1 (2^0)
+Bit          , 1   , 1   , 1   , 1   , 0           , 0
+|===
+
+It is 32 + 16 + 8 + 4 = 60.
+
+*Challenge*: What is 0b1101101 in decimal?
+
+=== Decimal -> binary
+
+To convert from decimal to binary,
+
+. Find the highest power of two less than or equal to the number
+. Write out all place values (powers of two) up to the number found in step 1
+. Make change with powers of two (repeat step 1)
+
+*Example*: Convert 278.1 to binary.
+256 is the highest power of two less than 278.1, so subtract away, and repeat.
+
+----
+    278.1
+  - 256    (2^8)
+  --------
+     22.1
+   - 16    (2^4)
+   -------
+      6.1
+    - 4    (2^2)
+    ------
+      2.1
+    - 2    (2^1)
+    ------
+      0.1
+    - 0.0625 (2^-4)
+    --------
+      0.0375
+    - 0.03125 (2^-5)
+    ---------
+      0.00625
+      ... and so forth...
+----
+
+At this point, to write out the binary number,
+just place a 1 corresponding to each place value we subtracted away, and zero elsewhere.
+
+[format="csv", options="header"]
+|===
+Place value   , 256 , 128 , 64  , 32  , 16  , 8   , 4   , 2   , 1   , Radix point , 0.5 , 0.25 , 0.125 , 0.0625 , 0.03125
+Bit           , 1   , 0   , 0   , 0   , 1   , 0   , 1   , 1   , 0   , .           , 0   , 0    , 0     , 1      , 1
+|===
+
+=== Fractions
+
+You may think: "Hey, we're not done yet!"
+You're right, the binary number above is not exactly 278.1 in decimal,
+but it is worth noting that some fractional numbers cannot be represented exactly.
+For example, 1/3 in decimal is 0.3333....
+We cannot represent that number in decimal,
+and decimal numbers such as 0.65 cannot be represented exactly in binary.
+This is why we care about precision when dealing with floating point numbers,
+and why you shouldn't use float or double for currency.
+
+*Challenge*: What is 127.75 in binary? Did you notice a pattern? What's 128 in binary?
+
+=== Finger binary
+
+You can use https://en.wikipedia.org/wiki/Finger_binary[finger binary] to represent numbers from zero (two fists) to 1023 (all fingers extended).
+
+image:http://lawrancej.github.io/COMP278-2014/images/binary-hands.svg[Impress your friends with your counting ability]
+
+*Challenge*: Represent the following numbers using finger binary.
+
+* 4. Hey!
+* 25.
+* 31.
+* 48. All right. :-)
+* 1023.
+
+=== Binary -> Octal (and back)
+
+. Group the binary number into 3-bit chunks from right to left.
+. Convert each three-bit chunk into a number.
+
+*Example*: 0b1011101 in octal looks like this.
+
+[format="csv", options="header"]
+|===
+Binary  , 1   , 011 , 101
+Octal   , 1   ,  3  ,  5
+|===
+
+*Challenge*: Convert 0b11001011011111 to octal.
+
+> Linux/Unix filesystems distinguish among user (u), group (g) and other (o) permissions, where each level has read/write/execute bits. To set permissions involves using octal. For example, to allow `something_random.exe` to be readable, writable and executable by a user, readbale and executable to the group, but unavailable for others, we could execute the following commands.
+
+----
+$ chmod 750 something_random.exe
+$ ls -la something_random.exe
+   rwxr-x--- something_random.exe
+$ = u  g  o Permissions
+----
+
+=== Binary -> Hexadecimal (and back)
+
+. Group the binary number into 4-bit chunks (nibbles) from right to left.
+. Convert each nibble into the corresponding hex digit.
+
+*Example*: 0b1011101 in hex:
+
+[format="csv", options="header"]
+|===
+Binary  , 101  , 1101
+Hex     ,   5  ,  D
+|===
+
+*Challenge*: Decode this binary number into hexadecimal. What did dad do?
+
+----
+1101 1010 1101
+1011 1110 1101 1101 1110 1101
+1010
+1011 1010 1101
+1011 1010 1101
+1011 1010 1011 1110
+----
+
+*Challenge*: Decode this binary number into hex. What happened to Ed?
+
+----
+1110 1101
+1111 1010 1100 1110 1101
+1011 1010 1101
+1101 1110 1100 1010 1111
+1100 0000 1111 1111 1110 1110
+----
+
+=== Binary integers and two's complement
+
+NOTE: Computers typically represent positive and negative integers in two's complement.
+Two's complement has the advantage that zero is unique,
+and subtraction is addition of a negative number.
+
+In two's complement, the width of the number is fixed (typically 64 bits on modern CPUs),
+and the most significant place value is negative.
+
+*Example*: The most significant place value in a signed 8 bit number is -128.
+
+*Challenge*: What's the most significant place value in a signed 16 bit number?
+
+=== Two's complement negation
+
+To negate a binary two's complement number, work from right to left:
+
+. Copy all least significant zeroes (if any)
+. Copy the least significant 1
+. Flip the remaining bits to the left
+
+*Example*: Suppose we're dealing with signed bytes.
+
+[format="csv", options="header"]
+|===
+Place  , -128 , 64  , 32  , 16  , 8   , 4   , 2   , 1
+Bits   , 0    , 0   , 0   , 1   , 1   , 0   , 1   , 0
+Negated, 1    , 1   , 1   , 0   , 0   , 1   , 1   , 0
+|===
+
+The signed byte 0b00011010 is 16 + 8 + 2 = 26 in decimal.
+The signed byte 0b11100110 is -128 + 64 + 32 + 4 + 2 = -26 in decimal.
+
+*Challenge*: What is -0b101010 in two's complement? Assume signed bytes (8 bits).
+
+*Challenge*: Look at this Java program. In Java, `int` is a 32-bit two's complement
+number. What do you think happens? Run it, and think about what you see.
+
+----
+public class Main {
+	public static void main(String[] args) {
+		int i = 0;
+		while (i >= 0) {
+			i++;
+		}
+		System.out.println("WTF?!?");
+		System.out.println(Integer.toBinaryString(i));
+		System.out.println(i);
+	}
+}
+----
+
+== January 11
+
+=== Boolean constants
+Remember: 0 is false, and 1 is true. Never mix these up.
+
+=== Truth tables
+
+A **truth table** is a unique, tabular representation of a function.
+All cells in a truth table consist of the values $0$ or $1$ (except for column labels).
+
+A truth table consists of four quadrants:
+
+[format="csv", options="header"]
+|===
+Input variables, Output functions (logic expressions)
+Enumeration of variable assignments,Evaluate expression for each row (variable assignment)
+|===
+
+To build a truth table, build up each quadrant from left to right, top to bottom.
+Label variables in the top left quadrant,
+then write out the expression in the top right quadrant.
+To generate all possible variable assignments,
+treat columns (variables) as digits in a binary number.
+Count in binary from zero to 2^n - 1,
+where n is the number of Boolean variables in the top left quadrant.
+To fill the bottom right quadrant,
+we can treat the variable assigments as the inputs to the logic expression listed in the upper right quadrant.
+
+Suppose a and b are Boolean variables,
+and a * b is a function of these variables.
+This is the truth table.
+
+[format="csv", options="header"]
+|===
+a   , b   , a * b
+0   , 0   , 0
+0   , 1   , 0
+1   , 0   , 0
+1   , 1   , 1
+|===
+
+Complete this truth table.
+
+[format="csv", options="header"]
+|===
+a   , b   , If a is true then b; if a is false then a.
+0   , 0   ,
+0   , 1   ,
+1   , 0   ,
+1   , 1   ,
+|===
+
+English is cumbersome, which is why we use compact and unambiguous logic expressions.
+
+=== Logic expressions
+
+*Logic expressions* represent logic functions; they consist of:
+Boolean variables (e.g., a,b,c,x,y,z), constants (e.g., 0,1),
+parenthesized expressions or operations on expressions.
+
+You may have seen logic expressions in C++ or Java already.
+
+----
+// Boolean vectors
+int a = 1;
+int b = 0;
+// Logic expression
+int f = ~a & b | a & ~b;
+----
+
+Logic expression notation in electronics differs slightly from C++ or Java.
+
+[format="csv", options="header"]
+|===
+Operation , C++ or Java , Electronics    , Meaning
+Buffer    , `a`         , a              , **Identity**: just a
+NOT       , `~a`        , a'             , Invert a (flip the bit)
+AND       , `a & b`    , a * b          , **Conjunction**: Are both a and b true?
+NAND      , `~(a & b)` , (a * b)'       , Either a or b (or both) are false
+OR        , `a | b`    , a + b          , **Disjunction**: Are either a or b (or both) true?
+NOR       , `~(a | b)` , (a + b)'       , Are both a and b false?
+XOR       , `a ^ b`     , (a &oplus; b)  , **Exclusive or**: Are a and b different?
+XNOR      , `(a == b)`  , (a &oplus; b)' , **Equality** Are a and b equal?
+|===
+
+The truth tables for these expressions are below.
+
+[format="csv", options="header"]
+|===
+a   , b   , a   , a * b , a + b , a &oplus; b
+0   , 0   , 0   , 0     , 0     , 0
+0   , 1   , 0   , 0     , 1     , 1
+1   , 0   , 1   , 0     , 1     , 1
+1   , 1   , 1   , 1     , 1     , 0
+|===
+
+[format="csv", options="header"]
+|===
+a   , b   , a'  , (a * b)' , (a + b)' , (a &oplus; b)'
+0   , 0   , 1   , 1        , 1        , 1
+0   , 1   , 1   , 1        , 0        , 0
+1   , 0   , 0   , 1        , 0        , 0
+1   , 1   , 0   , 0        , 0        , 1
+|===
+
+Logic expressions borrow notation from algebra.
+Thus, AND as a * b, since it corresponds to multiplication on single bits.
+OR is almost addition: 0 + 1 = 1, but 1 + 1 = 2, not 1,
+which is why we read a + b as "a OR b", not "a plus b".
+Buffer may seem pointless, but it can delay a signal in a circuit.
+
+=== Order of operations
+
+Logic operators also borrow order of operations from algebra.
+Remember PEMDAS? In logic, it's PNAO.
+
+[format="csv", options="header"]
+|===
+Mnemonic  , Operation             , Remarks
+Please    , Parenthesis           , Group operations
+Note      , NOT                   , NOT is like a negative sign
+And       , "AND, NAND"           , AND is 1-bit multiplication
+Order     , "OR, NOR, XOR, XNOR"  , OR is almost addition
+|===
+
+In logic expression a+b*c', we have three operations,
+and we evaluate NOT c first, then AND that with b, and finally OR with a.
+
+=== Venn Diagrams
+
+Each row in a truth table corresponds to an area in a Venn diagram.
+
+image:http://lawrancej.github.io/COMP278-2014/images/venn-diagram.svg[Venn diagram, truth table, and logic expressions]
+
+We can represent logic operations with Venn diagrams.
+Compare Venn diagrams between the left and right sides.
+What do you notice?
+Union and intersection are set operations: what logic operations do these correspond to?
+
+image:http://lawrancej.github.io/COMP278-2014/images/venn-diagram-operations.svg[Compare Venn diagrams between the left and right sides.]
+
+=== Logic gates
+
+Logic gates correspond to logic operations.
+In each gate, inputs are to the left and outputs are to the right.
+Compare gates on the left and right sides.
+Bubbles (circles) mean NOT (invert).
+
+image:http://lawrancej.github.io/COMP278-2014/images/gates.svg[Logic gates]
+
+To convert a logic expression to a circuit diagram.
+
+. List all variables vertically on the left hand side.
+. Evaluate the next operation in the expression by order of operations.
+. Place the corresponding logic gate to the right.
+. Wire the inputs to relevant subexpressions.
+. Label the output with the corresponding subexpression.
+. Repeat steps 2-5 until done evaluating the expression.
+
+=== Expression to circuit diagram
+In Logisim, draw this expression as a circuit: x'+y*z
+
+==== Right
+image:http://lawrancej.github.io/COMP278-2014/images/logicly-diagram-right.png[What you should see]
+
+==== **Wrong**
+image:http://lawrancej.github.io/COMP278-2014/images/logicly-diagram-wrong.png[What you shouldn't see]
+
+=== Function tables
+A **function table** is like a truth table;
+however, cells in the lower right quadrant can be logic expressions.
+
+For example, here's the truth table for a &oplus; b:
+
+[format="csv", options="header"]
+|===
+a   , b   , a &oplus; b
+0   , 0   , 0
+0   , 1   , 1
+1   , 0   , 1
+1   , 1   , 0
+|===
+
+We can condense this down to this function table, by freeing variable b:
+
+[format="csv", options="header"]
+|===
+a   , a &oplus; b
+0   , b
+1   , b'
+|===
+
+Study this function table carefully in relation to the truth table above.
+We shrank down a truth table without losing information by noticing that a &oplus; b
+is the same as b if a is false, and a &oplus; b is the inverse of b if a is true.
+
+== January 13
+
+Boolean algebra is very similar to plain algebra, but some laws are unique to Boolean algebra.
+For example, the distributive law, has a form unique to Boolean algebra.
+
+[format="csv",output="header"]
+|===
+Law, Form, Dual form
+**Identity**, a * 1 = a                   , a + 0 = a
+**Commutative**    , a * b = b * a               , a + b = b + a
+**Associative**    , (a * b) * c = a * (b * c)   , (a + b) + c = a + (b + c)
+Identity           , a * 0 = 0                   , a + 1 = 1
+Distributive       , a * (b + c) = a * b + a * c , a + (b * c) = (a + b) * (a + c)
+Idempotence        , a * a = a                   , a + a = a
+Absorption         , a + a * b = a               , a * (a + b) = a
+Complement         , 0' = 1                      , 1' = 0
+Complement         , a * a' = 0                  , a + a' = 1
+Involution         , a'' = a                     , a'' = a
+DeMorgan's         , (a + b)' = a' * b'          , (a * b)' = a' + b'
+|===
+
+=== Dual forms
+
+All laws of Boolean algebra come in two forms, the law and its **dual form**.
+The dual form of any valid equation in Boolean algebra is also true.
+
+To find the dual form of a logic expression:
+
+. Evaluate the original expression and put parentheses around all subexpressions
+. Swap 1 with 0 (and vice versa)
+. Swap AND with OR (and vice versa)
+. Leave complements (NOT) alone
+
+Notice how the steps above convert the form of a law to its dual form?
+
+*Example*: Find the dual form of Z'+X*Y
+
+This is Z'*(X+Y).
+
+*Challenge*: Find the dual form of (a + b)' + c * a' + 1
+
+=== Simplification
+
+Apply the laws of Boolean algebra to an expression or equation to simplify/prove it.
+This is the sort of thing that's easier said than done, and practice will help.
+
+Hint: Work slowly and methodically: picture yourself working your way through a maze.
+Starting with the original expression, apply one law at a time until you arrive at the answer.
+At each step, you may choose many possible paths based on the laws you apply.
+
+*Example*: Show X*Y'*Z + X*Y*Z' + X*Y*Z = X*(Y+Z)
+
+[format="csv",output="header"]
+|===
+X*Y'*Z + X*Y*Z' + X*Y*Z = X*(Y+Z), Original expression
+X*(Y'*Z + Y*Z' + Y*Z) = X*(Y+Z), Distributive law
+X*(Z*(Y' + Y) + Y*Z') = X*(Y+Z), Distributive law
+X*(Z*(1) + Y*Z') = X*(Y+Z), Complements
+X*(Z + Y*Z') = X*(Y+Z), Identity
+X*(Z + Z*Y + Y*Z') = X*(Y+Z), Absorption
+X*(Z + Y*(Z + Z')) = X*(Y+Z), Distributive law
+X*(Z + Y*(1)) = X*(Y+Z), Complements
+X*(Z + Y) = X*(Y+Z), Identity
+X*(Y + Z) = X*(Y+Z), Commutative law
+|===
+
+*Challenge*: Show (a * b)' * (a' + b) * (b' + b) = a'
+
+== January 15
+
+=== Gray codes
+
+A Gray code (also known as a reflected binary code) is a way of encoding binary numbers so that every increment changes only a single bit.
+
+When we count in binary, we repeat 01 over and over again in the least significant place value.
+When we count in gray codes, we repeat 0110 over and over again in the rightmost bit.
+
+[format="csv",output="header"]
+|===
+Binary,Decimal,Gray code
+0000,0,0000
+0001,1,0001
+0010,0,0011
+0011,1,0010
+0100,0,0110
+0101,1,0111
+0110,0,0101
+0111,1,0100
+1000,0,1100
+1001,1,1101
+1010,0,1111
+1011,1,1110
+1100,0,1010
+1101,1,1011
+1110,0,1001
+1111,1,1000
+|===
+
+=== Binary -> Gray code
+
+. Shift the number to the right by one bit
+. Bitwise XOR the number and the original number
+
+In C, this is: `(num >> 1) ^ num`
+
+*Example*: What is the Gray code for 0b10110?
+
+----
+10110 num
+01011 num >> 1
+11101 bitwise XOR (Gray code)
+----
+
+What's the point?
+
+=== Karnaugh maps (K-Maps)
+
+Karnaugh maps:
+
+* are an alternate way of representing truth tables and function tables
+* layout a single output function and use the horizontal and vertical axes of a table for the values of the inputs
+* use Gray codes to ensure that related values go together spatially in the table
+* can help you find simple logic expressions
+
+http://www.ee.calpoly.edu/media/uploads/resources/KarnaughExplorer_1.html[Lets examine Karnaugh maps in action]
+
+== January 20
+
+=== Function tables
+
+Function tables are a way to compact down a truth table by removing variable(s) from the input columns and placing it into the output function.
+Function tables are so called because the outputs are no longer merely just 0 or 1, but also **any function** of input variables.
+
+=== Example
+
+Here's the truth table for a &oplus; b:
+
+[format="csv", options="header"]
+|===
+a   , b   , a &oplus; b
+0   , 0   , 0
+0   , 1   , 1
+1   , 0   , 1
+1   , 1   , 0
+|===
+
+We can condense this down to this function table, by freeing variable b:
+
+[format="csv", options="header"]
+|===
+a   , a &oplus; b
+0   , b
+1   , b'
+|===
+
+Notice how when a is false, the output function is the same as b.
+When a is true, the output function is the inverse of b.
+
+=== Multiplexers
+
+Multiplexers (MUX) are circuits that redirect one of several inputs to a single output based on the value of the selector.
+That is, the output corresponds to the selected input.
+
+In this respect, multiplexers are equivalent to switch/case statements.
+
+----
+boolean Four1MUX(byte selector, boolean input0, boolean input1, boolean input2, boolean input3) {
+    switch(selector) {
+        case 0: return input0;
+        case 1: return input1;
+        case 2: return input2;
+        case 3: return input3;
+    }
+    return false;
+}
+----
+
+The function table for a 4-1 MUX (4 input, 1 output multiplexer) is as follows:
+
+[format="csv", options="header"]
+|===
+S1,S0,Output
+0,0,Input0
+0,1,Input1
+1,0,Input2
+1,1,Input3
+|===
+
+Select bits S1 and S0 represent the most and least significant bits of S (respectively) in binary.
+
+=== Truth/function table to multiplexer
+
+To implement a combination logic function with a multiplexer, the number of rows (excluding the header) in the truth/function table must equal the number of inputs to the multiplexer.
+If your truth table has more rows than the multiplexer has inputs, write out a function table with the same number of inputs as the multiplexer equivalent to the truth table.
+
+. Align the outputs of your table to the inputs of the multiplexer.
+. The select bits will correspond to the input variables.
+. Ta-da!
+
+=== Read Only Memory
+
+A ROM (Read-Only Memory) is analogous to an array.
+The ROM address is like an array index, and the ROM data for an address is like the value at an index.
+
+=== Truth table to ROM
+
+Treat all input bits in a truth table as a binary number that corresponds to ROM addresses (array indices).
+Treat all output bits in a truth table as a binary number that corresponds to ROM data.
+Effectively, a ROM acts as a lookup array for function implementation.
+
+== January 22: Sequential logic
+
+=== Combinational vs. Sequential logic
+
+At this point, everything we've talked about has concerned *combinational logic.*
+In combinational logic, outputs are functions of inputs.
+In other words, combinational logic has no memory.
+
+Today, we'll talk about *sequential logic.*
+In sequential logic, outputs are functions of inputs and *prior outputs.*
+Put another way, sequential logic is combinational logic + memory.
+
+=== Latches
+
+Latches are a single bit memory device.
+We can construct a latch using two NAND gates or two NOR gates.
+We have two inputs, S' and R', and an output Q.
+These are fed as input to the separate gates, leaving each gate with an empty pin for another input.
+The other input to each gate is the output of the other gate.
+Thus, the gates are cross-connected to each other, so the output is literally a function of inputs and prior outputs.
+
+In a latch, we can describe the behavior using a *characteristic table*, similar to a truth table.
+In a characteristic table, we describe the behavior of the circuit.
+
+(SR)' NAND latch characteristic table
+
+[format="csv",output="header"]
+|===
+S',R',Q
+0,0,Restricted state (here be dragons)
+0,1,Q=1 (Assign Q to 1)
+1,0,Q=0 (Assign Q to 0)
+1,1,No change
+|===
+
+Try it out for yourself.
+
+Latches are so called because they are *level-triggered.*
+Level-triggered means that the level (hi or lo voltage) of the input is what causes the value of Q (the memory) to change.
+
+=== Flip-flops
+
+Flip-flops, like latches, are a single bit memory device.
+Unlike latches, flip-flops are *edge-triggered.*
+Edge-triggered means that the transition from one input to another is what causes the value of the memory to change.
+There are two kinds of edge: rising edge (positive edge) and falling edge (negative edge), corresponding to the transition from low to hi and hi to lo, respectively.
+
+Flip-flops are made from latches, but with extra circuitry to make it edge-triggered.
+The circuitry itself takes advantage of solid-state physics to achieve the desired effect.
+Just as the speed of sound varies based on the medium (e.g., air, water), or the speed of light varies based on the medium (e.g., vacuum, fiber-optics, air), the speed at which electrons flow through a circuit varies based on the medium.
+Electrons flow at nearly the speed of light through good conductors such as copper, but flow slightly slower through semiconductors such as silicon (known as a *gate propagation delay* ).
+
+The expression x'+x is always equal to 1, but the circuit implementing this isn't always equal to 1, because of gate propagation delays.
+
+=== Registers
+
+A register is a multiple-bit memory device composed of multiple flip-flops chained together to store things like integers, characters, and such.
+Code that declares a variable, like `int i = 0`, allocates `i` to a register and sets the value of that register.
+All CPUs have registers in them.
+
+== January 25: State machines
+
+A *finite state machine* consists of a finite number of states (nodes) and transitions (edges) among states.
+The state machine begins at the start state.
+External input or the passage of time triggers transitions.
+State machines may also produce output.
+The input and/or output labels each transition (edge).
+
+image:http://lawrancej.github.io/COMP1200-2016/Lectures/state-machine-legend.svg[State machine legend]
+
+== January 27: State machine example implementation
+
+A state machine can model orthogonal traffic lights at an intersection.
+Since traffic lights take no input (other than the passage of time), the input is omitted from the transition diagram.
+The output corresponds to the color of each of the two orthogonal traffic lights.
+
+image:http://lawrancej.github.io/COMP1200-2016/Lectures/traffic-light.svg[Traffic light state-transition diagram]
+
+We can convert the state diagram into a transition table:
+
+[cols="4",format="csv"]
+|===
+state,next,1,2
+0,1,green,red
+1,2,green,red
+2,3,yellow,red
+3,4,red,green
+4,5,red,green
+5,6,red,green
+6,7,red,yellow
+7,0,green,red
+|===
+
+To implement this into a ROM:
+
+. Use the state as the ROM address.
+. Assign bits to red (`00`), yellow (`01`) and green (`10`).
+The number of bits necessary is the log (base 2) of the number of possibilities.
+. Encode the next state and outputs into a number.
+
+[cols="5",format="csv"]
+|===
+state (ROM address),next,1,2,ROM data
+0,1,10,00,0x18
+1,2,10,00,0x28
+2,3,01,00,0x34
+3,4,00,10,0x42
+4,5,00,10,0x52
+5,6,00,10,0x62
+6,7,00,01,0x71
+7,0,10,00,0x08
+|===
+
+== January 29: State machines
+
+image:http://lawrancej.github.io/COMP1200-2016/Lectures/random-state-machine.svg[Random state machine]
+
+https://docs.google.com/spreadsheets/d/1k3oJ2vz-r8oahjXeXzSUPlxBUk9rlUNBdR2-pGXjyP8/edit?usp=sharing[Spreadsheet] for the state machine above.
